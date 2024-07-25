@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn instance to serve nano_sync
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/nano_sync
+ExecStart=/usr/local/bin/gunicorn --workers 10 --timeout 28800 --reload --bind unix:/var/www/nano_sync/nano_sync.sock -m 007 --error-logfile /var/www/nano_sync/error.log wsgi:app
+
+[Install]
+WantedBy=multi-user.target
