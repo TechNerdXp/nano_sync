@@ -237,24 +237,21 @@ def copy_data_route():
         # Get the user ID from the session
         user_id = session.get('user_id')
         if not user_id:
-            return jsonify({'error': 'User not authenticated'}), 401
+            return redirect(url_for('main.index', source_ss_id=source_ss_id, source_sheet_name=source_sheet_name, target_ss_id=target_ss_id, target_sheet_name=target_sheet_name))
         
         # Retrieve tokens and client credentials
         token = Token.query.filter_by(user_id=user_id).first()
         refresh_token = RefreshToken.query.filter_by(user_id=user_id).first()
 
-        if not token or not refresh_token:
-            return jsonify({'error': 'Tokens not found for user'}), 404
 
         access_token = token.access_token
         refresh_token_value = refresh_token.refresh_token
-        client_id = os.getenv('CLIENT_ID')
-        client_secret = os.getenv('CLIENT_SECRET')
-        token_uri = 'https://oauth2.googleapis.com/token'
-
-        if not access_token:
-            return redirect(url_for('main.index', source_ss_id=source_ss_id, source_sheet_name=source_sheet_name, target_ss_id=target_ss_id, target_sheet_name=target_sheet_name))
-
+        client_id = GOOGLE_CLIENT_ID
+        client_secret = GOOGLE_CLIENT_SECRET
+        
+        google_provider_cfg = get_google_provider_cfg()
+        token_uri = google_provider_cfg["token_endpoint"]
+        
         credentials = Credentials(
             token=access_token,
             refresh_token=refresh_token_value,
